@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b1120">
+  <title>FleetControl | Gestão de Frotas</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark">FC</div>
+        <div class="brand-copy">
+          <strong>Fleet<span>Control</span></strong>
+          <small>Gestão inteligente de frotas</small>
+        </div>
+      </div>
+
+      <button class="menu-toggle" id="menuToggle" type="button"
+        aria-label="Recolher menu" aria-expanded="true">
+        <span class="hamburger">☰</span>
+        <span class="toggle-label">Recolher menu</span>
+      </button>
+
+      <nav class="navigation" aria-label="Menu principal">
+        <a href="#dashboard" class="nav-link active" data-screen="dashboard">
+          <span class="nav-icon">▦</span>
+          <span class="nav-label">Painel</span>
+        </a>
+        <a href="#veiculos" class="nav-link" data-screen="veiculos">
+          <span class="nav-icon">▣</span>
+          <span class="nav-label">Cadastro de veículos</span>
+        </a>
+        <a href="#motoristas" class="nav-link" data-screen="motoristas">
+          <span class="nav-icon">♙</span>
+          <span class="nav-label">Cadastro de motoristas</span>
+        </a>
+        <a href="#abastecimentos" class="nav-link" data-screen="abastecimentos">
+          <span class="nav-icon">⛽</span>
+          <span class="nav-label">Abastecimento</span>
+        </a>
+        <a href="#multas" class="nav-link" data-screen="multas">
+          <span class="nav-icon">!</span>
+          <span class="nav-label">Multas</span>
+        </a>
+        <a href="#manutencoes" class="nav-link" data-screen="manutencoes">
+          <span class="nav-icon">⚙</span>
+          <span class="nav-label">Manutenção</span>
+        </a>
+        <a href="#relatorios" class="nav-link" data-screen="relatorios">
+          <span class="nav-icon">▤</span>
+          <span class="nav-label">Relatórios</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <span class="status-dot"></span>
+        <div>
+          <strong>Modo de testes</strong>
+          <small>Dados salvos no banco de dados</small>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-title">
+          <p class="eyebrow">GESTÃO INTELIGENTE DE FROTAS</p>
+          <h1 id="pageTitle">Painel</h1>
+        </div>
+        <div class="topbar-right">
+          <span class="environment">
+            <span class="status-dot"></span>
+            Sistema online
+          </span>
+          <button class="btn btn-secondary" id="btnSair" type="button">Sair</button>
+          <div class="avatar" aria-label="Administrador">AD</div>
+        </div>
+      </header>
+
+      <div class="mobile-menu-row">
+        <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button">
+          ☰ Menu
+        </button>
+      </div>
+
+      <!-- 1. PAINEL -->
+      <section class="screen" id="screen-dashboard">
+        <div class="welcome">
+          <div>
+            <p class="eyebrow">VISÃO GERAL</p>
+            <h2>Bem-vindo ao FleetControl</h2>
+            <p>Acompanhe os principais indicadores da sua frota em um só lugar.</p>
+          </div>
+          <span class="date-chip" id="todayLabel"></span>
+        </div>
+
+        <div class="stats-grid">
+          <article class="stat-card">
+            <div class="stat-top">
+              <span>Veículos cadastrados</span>
+              <span class="stat-icon blue">▣</span>
+            </div>
+            <strong id="totalVeiculos">0</strong>
+            <small>Veículos na sua frota</small>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-top">
+              <span>Motoristas cadastrados</span>
+              <span class="stat-icon violet">♙</span>
+            </div>
+            <strong id="totalMotoristas">0</strong>
+            <small>Equipe registrada</small>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-top">
+              <span>Manutenções</span>
+              <span class="stat-icon orange">⚙</span>
+            </div>
+            <strong id="totalManutencoes">0</strong>
+            <small>Registros de manutenção</small>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-top">
+              <span>Abastecimentos</span>
+              <span class="stat-icon green">⛽</span>
+            </div>
+            <strong id="totalAbastecimentos">0</strong>
+            <small>Registros de abastecimento</small>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-top">
+              <span>Multas</span>
+              <span class="stat-icon red">!</span>
+            </div>
+            <strong id="totalMultas">0</strong>
+            <small>Multas registradas</small>
+          </article>
+        </div>
+
+        <div class="dashboard-grid">
+          <section class="panel">
+            <div class="panel-heading">
+              <div>
+                <h3>Resumo da frota</h3>
+                <p>Visão geral dos registros do sistema</p>
+              </div>
+            </div>
+            <div class="status-summary">
+              <div>
+                <span>Ativos</span>
+                <strong id="veiculosDisponiveis">0</strong>
+              </div>
+              <div>
+                <span>Em manutenção</span>
+                <strong id="veiculosManutencao">0</strong>
+              </div>
+              <div>
+                <span>Inativos</span>
+                <strong id="veiculosInativos">0</strong>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-heading">
+              <div>
+                <h3>Ações rápidas</h3>
+                <p>Acesse os cadastros mais utilizados</p>
+              </div>
+            </div>
+            <div class="quick-actions">
+              <button class="quick-action" type="button" data-go="veiculos">
+                <span class="quick-icon">▣</span>
+                <span>
+                  <strong>Cadastrar veículo</strong>
+                  <small>Adicionar veículo à frota</small>
+                </span>
+                <span class="arrow">›</span>
+              </button>
+              <button class="quick-action" type="button" data-go="motoristas">
+                <span class="quick-icon">♙</span>
+                <span>
+                  <strong>Cadastrar motorista</strong>
+                  <small>Registrar um motorista</small>
+                </span>
+                <span class="arrow">›</span>
+              </button>
+              <button class="quick-action" type="button" data-go="abastecimentos">
+                <span class="quick-icon">⛽</span>
+                <span>
+                  <strong>Registrar abastecimento</strong>
+                  <small>Adicionar novo abastecimento</small>
+                </span>
+                <span class="arrow">›</span>
+              </button>
+              <button class="quick-action" type="button" data-go="manutencoes">
+                <span class="quick-icon">⚙</span>
+                <span>
+                  <strong>Registrar manutenção</strong>
+                  <small>Adicionar manutenção</small>
+                </span>
+                <span class="arrow">›</span>
+              </button>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <!-- 2. CADASTRO DE VEÍCULOS -->
+      <section class="screen" id="screen-veiculos" hidden>
+        <div class="section-intro">
+          <div>
+            <h2>Cadastro de veículos</h2>
+            <p>Cadastre e gerencie os veículos da sua frota.</p>
+          </div>
+          <span class="count-pill" id="contadorVeiculos">0 veículos</span>
+        </div>
+
+        <section class="panel">
+          <div class="panel-heading">
+            <div>
+              <h3 id="tituloFormVeiculo">Novo veículo</h3>
+              <p>Preencha os dados do veículo abaixo.</p>
+            </div>
+          </div>
+
+          <form id="formVeiculo">
+            <input type="hidden" id="veiculoId">
+
+            <div class="form-grid">
+              <div class="field">
+                <label for="placa">Placa *</label>
+                <input id="placa" name="placa" placeholder="ABC1D23" required>
+              </div>
+
+              <div class="field">
+                <label for="marca">Marca *</label>
+                <input id="marca" name="marca" placeholder="Ex.: Volkswagen" required>
+              </div>
+
+              <div class="field">
+                <label for="modelo">Modelo *</label>
+                <input id="modelo" name="modelo" placeholder="Ex.: Gol" required>
+              </div>
+
+              <div class="field">
+                <label for="ano">Ano *</label>
+                <input id="ano" name="ano" type="number" min="1900" max="2100" placeholder="2025" required>
+              </div>
+
+              <div class="field">
+                <label for="tipoVeiculo">Tipo de veículo *</label>
+                <select id="tipoVeiculo" name="tipo" required>
+                  <option value="">Selecione</option>
+                  <option value="Carro">Carro</option>
+                  <option value="Moto">Moto</option>
+                  <option value="Van">Van</option>
+                  <option value="Caminhão">Caminhão</option>
+                  <option value="Outro">Outro</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="status">Status *</label>
+                <select id="status" name="status" required>
+                  <option value="Ativo">Ativo</option>
+                  <option value="Em manutenção">Em manutenção</option>
+                  <option value="Inativo">Inativo</option>
+                </select>
+              </div>
+
+              <div class="field field-full">
+                <label for="motorista">Motorista responsável</label>
+                <select id="motorista" name="motorista_id">
+                  <option value="">Sem motorista</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button class="btn btn-primary" type="submit" id="btnSalvarVeiculo">
+                Salvar veículo
+              </button>
+              <button class="btn btn-secondary" type="reset" id="btnLimparVeiculo">
+                Limpar
+              </button>
+              <button class="btn btn-secondary" type="button" id="btnCancelarEdicaoVeiculo" hidden>
+                Cancelar edição
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel">
+          <div class="panel-heading">
+            <div>
+              <h3>Veículos cadastrados</h3>
+              <p>Consulte os registros da frota.</p>
+            </div>
+            <input class="table-search" id="buscaVeiculos" placeholder="Buscar veículo...">
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Placa</th>
+                  <th>Marca</th>
+                  <th>Modelo</th>
+                  <th>Ano</th>
+                  <th>Tipo</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tabelaVeiculos">
+                <tr><td colspan="7">Carregando veículos...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <!-- 3. CADASTRO DE MOTORISTAS -->
+      <section class="screen" id="screen-motoristas" hidden>
+        <div class="section-intro">
+          <div>
+            <h2>Cadastro de motoristas</h2>
+            <p>Cadastre e gerencie os motoristas da empresa.</p>
+          </div>
+          <span class="count-pill" id="contadorMotoristas">0 motoristas</span>
+        </div>
+
+        <section class="panel">
+          <div class="panel-heading">
+            <div>
+              <h3>Novo motorista</h3>
+              <p>Preencha os dados do motorista.</p>
+            </div>
+          </div>
+          <form id="formMotorista">
+            <input type="hidden" id="motoristaId">
+            <div class="form-grid">
+              <div class="field">
+                <label for="nomeMotorista">Nome completo *</label>
+                <input id="nomeMotorista" name="nome" required placeholder="Nome do motorista">
+              </div>
+              <div class="field">
+                <label for="cpfMotorista">CPF</label>
+                <input id="cpfMotorista" name="cpf" placeholder="000.000.000-00">
+              </div>
+              <div class="field">
+                <label for="cnhMotorista">Número da CNH</label>
+                <input id="cnhMotorista" name="cnh" placeholder="Número da CNH">
+              </div>
+              <div class="field">
+                <label for="validadeCnh">Validade da CNH</label>
+                <input id="validadeCnh" name="validade_cnh" type="date">
+              </div>
+              <div class="field">
+                <label for="telefoneMotorista">Telefone</label>
+                <input id="telefoneMotorista" name="telefone" type="tel" placeholder="(11) 99999-9999">
+              </div>
+              <div class="field">
+                <label for="statusMotorista">Status *</label>
+                <select id="statusMotorista" name="status" required>
+                  <option value="Ativo">Ativo</option>
+                  <option value="Inativo">Inativo</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary" type="submit">Salvar motorista</button>
+              <button class="btn btn-secondary" type="reset">Limpar</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel">
+          <div class="panel-heading">
+            <div>
+              <h3>Motoristas cadastrados</h3>
+              <p>Consulte os motoristas registrados.</p>
+            </div>
+            <input class="table-search" id="buscaMotoristas" placeholder="Buscar motorista...">
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>CPF</th>
+                  <th>CNH</th>
+                  <th>Validade CNH</th>
+                  <th>Telefone</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tabelaMotoristas">
+                <tr><td colspan="7">Carregando motoristas...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <!-- 4. ABASTECIMENTOS -->
+      <section class="screen" id="screen-abastecimentos" hidden>
+        <div class="section-intro">
+          <div>
+            <h2>Abastecimento</h2>
+            <p>Registre e acompanhe os abastecimentos da frota.</p>
+          </div>
+          <span class="count-pill" id="contadorAbastecimentos">0 abastecimentos</span>
+        </div>
+
+        <section class="panel">
+          <div class="panel-heading">
+            <div>
+              <h3>Novo abastecimento</h3>
+              <p>Informe os dados do abastecimento.</p>
+            </div>
+          </div>
+          <form id="formAbastecimento">
+            <input type="hidden" id="abastecimentoId">
+            <div class="form-grid">
+              <div class="field">
+                <label for="veiculoAbastecimento">Veículo *</label>
+                <select id="veiculoAbastecimento" name="veiculo_id" required>
+                  <option value="">Selecione um veículo</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="dataAbastecimento">Data *</label>
+                <input id="dataAbastecimento" name="data" type="date" required>
+              </div>
+              <div class="field">
+                <label for="litrosAbastecimento">Litros *</label>
+                <input id="litrosAbastecimento" name="litros" type="number" min="0" step="0.01" required>
+              </div>
+              <div class="field">
+                <label for="valorLitro">Valor por litro (R$) *</label>
+                <input id="valorLitro" name="valor_litro" type="number" min="0" step="0.01" required>
+              </div>
+              <div class="field">
+                <label for="kmAbastecimento">Quilometragem</label>
+                <input id="kmAbastecimento" name="quilometragem" type="number" min="0">
+              </div>
+              <div class="field">
+                <label for="combustivel">Combustível</label>
+                <select id="combustivel" name="combustivel">
+                  <option value="Gasolina">Gasolina</option>
+                  <option value="Etanol">Etanol</option>
+                  <option value="Diesel">Diesel</option>
+                  <option value="GNV">GNV</option>
+                  <option value="Outro">Outro</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary" type="submit">Salvar abastecimento</button>
+              <button class="btn btn-secondary" type="reset">Limpar</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel">
+          <div class="panel-heading">
+            <div>
+              <h3>Histórico de abastecimentos</h3>
+              <p>Registros de consumo e custos.</p>
+            </div>
+            <input class="table-search" id="buscaAbastecimentos" placeholder="Buscar abastecimento...">
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Veículo</th>
+                  <th>Data</th>
+                  <th>Litros</th>
+                  <th>Valor por litro</th>
+                  <th>Total</th>
+                  <th>Quilometragem</th>
+                  <th>Combustível</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tabelaAbastecimentos">
+                <tr><td colspan="8">Carregando abastecimentos...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <!-- 5. MULTAS -->
+      <section class="screen" id="screen-multas" hidden>
+        <div class="section-intro">
+          <div>
+            <h2>Multas</h2>
+            <p>Controle as multas e os respectivos pagamentos.</p>
+          </div>
+          <span class="count-pill" id="contadorMultas">0 multas</span>
+        </div>
+
+        <section class="panel">
+          <div class="panel-heading">
+            <div>
+              <h3>Registrar multa</h3>
+              <p>Preencha as informações da infração.</p>
+            </div>
+          </div>
+          <form id="formMulta">
+            <input type="hidden" id="multaId">
+            <div class="form-grid">
+              <div class="field">
+                <label for="veiculoMulta">Veículo *</label>
+                <select id="veiculoMulta" name="veiculo_id" required>
+                  <option value="">Selecione um veículo</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="dataMulta">Data da infração *</label>
+                <input id="dataMulta" name="data" type="date" required>
+              </div>
+              <div class="field">
+                <label for="descricaoMulta">Descrição *</label>
+                <input id="descricaoMulta" name="descricao" required placeholder="Descrição da infração">
+              </div>
+              <div class="field">
+                <label for="valorMulta">Valor (R$) *</label>
+                <input id="valorMulta" name="valor" type="number" min="0" step="0.01" required>
+              </div>
+              <div class="field">
+                <label for="statusMulta">Status do pagamento *</label>
+                <select id="statusMulta" name="status" required>
+                  <option value="Pendente">Pendente</option>
+                  <option value="Paga">Paga</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="vencimentoMulta">Vencimento</label>
+                <input id="vencimentoMulta" name="vencimento" type="date">
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary" type="submit">Salvar multa</button>
+              <button class="btn btn-secondary" type="reset">Limpar</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel">
+          <div class="panel-heading">
+            <div>
+              <h3>Multas registradas</h3>
+              <p>Consulte multas pendentes e pagas.</p>
+            </div>
+            <input class="table-search" id="buscaMultas" placeholder="Buscar multa...">
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Veículo</th>
+                  <th>Data</th>
+                  <th>Descrição</th>
+                  <th>Valor</th>
+                  <th>Status</th>
+                  <th>Vencimento</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tabelaMultas">
+                <tr><td colspan="7">Carregando multas...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <!-- 6. MANUTENÇÕES -->
+      <section class="screen" id="screen-manutencoes" hidden>
+        <div class="section-intro">
+          <div>
+            <h2>Manutenção</h2>
+            <p>Gerencie serviços e custos de manutenção.</p>
+          </div>
+          <span class="count-pill" id="contadorManutencoes">0 manutenções</span>
+        </div>
+
+        <section class="panel">
+          <div class="panel-heading">
+            <div>
+              <h3>Registrar manutenção</h3>
+              <p>Informe os dados do serviço realizado.</p>
+            </div>
+          </div>
+          <form id="formManutencao">
+            <input type="hidden" id="manutencaoId">
+            <div class="form-grid">
+              <div class="field">
+                <label for="veiculoManutencao">Veículo *</label>
+                <select id="veiculoManutencao" name="veiculo_id" required>
+                  <option value="">Selecione um veículo</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="dataManutencao">Data *</label>
+                <input id="dataManutencao" name="data" type="date" required>
+              </div>
+              <div class="field">
+                <label for="tipoManutencao">Tipo de manutenção *</label>
+                <select id="tipoManutencao" name="tipo" required>
+                  <option value="">Selecione</option>
+                  <option value="Preventiva">Preventiva</option>
+                  <option value="Corretiva">Corretiva</option>
+                  <option value="Pneus">Pneus</option>
+                  <option value="Outro">Outro</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="valorManutencao">Valor (R$) *</label>
+                <input id="valorManutencao" name="valor" type="number" min="0" step="0.01" required>
+              </div>
+              <div class="field field-full">
+                <label for="descricaoManutencao">Descrição do serviço *</label>
+                <textarea id="descricaoManutencao" name="descricao" rows="3" required placeholder="Descreva o serviço realizado"></textarea>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary" type="submit">Salvar manutenção</button>
+              <button class="btn btn-secondary" type="reset">Limpar</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel">
+          <div class="panel-heading">
+            <div>
+              <h3>Histórico de manutenções</h3>
+              <p>Serviços registrados para os veículos.</p>
+            </div>
+            <input class="table-search" id="buscaManutencoes" placeholder="Buscar manutenção...">
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Veículo</th>
+                  <th>Data</th>
+                  <th>Tipo</th>
+                  <th>Descrição</th>
+                  <th>Valor</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tabelaManutencoes">
+                <tr><td colspan="6">Carregando manutenções...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <!-- 7. RELATÓRIOS -->
+      <section class="screen" id="screen-relatorios" hidden>
+        <div class="section-intro">
+          <div>
+            <h2>Relatórios</h2>
+            <p>Resumo financeiro e operacional da frota.</p>
+          </div>
+          <button class="btn btn-primary" id="exportarRelatorio" type="button">
+            Exportar CSV
+          </button>
+        </div>
+
+        <div class="stats-grid">
+          <article class="stat-card">
+            <div class="stat-top">
+              <span>Total em manutenção</span>
+              <span class="stat-icon orange">⚙</span>
+            </div>
+            <strong id="totalCustoManutencao">R$ 0,00</strong>
+            <small>Custos registrados</small>
+          </article>
+          <article class="stat-card">
+            <div class="stat-top">
+              <span>Total em abastecimento</span>
+              <span class="stat-icon green">⛽</span>
+            </div>
+            <strong id="totalCustoAbastecimento">R$ 0,00</strong>
+            <small>Custos registrados</small>
+          </article>
+          <article class="stat-card">
+            <div class="stat-top">
+              <span>Total em multas</span>
+              <span class="stat-icon red">!</span>
+            </div>
+            <strong id="totalCustoMultas">R$ 0,00</strong>
+            <small>Valores registrados</small>
+          </article>
+        </div>
+
+        <section class="panel">
+          <div class="panel-heading">
+            <div>
+              <h3>Resumo de custos</h3>
+              <p>Valores registrados no sistema.</p>
+            </div>
+          </div>
+          <div class="report-costs">
+            <div class="report-cost">
+              <span>Manutenção</span>
+              <strong id="relatorioManutencao">R$ 0,00</strong>
+            </div>
+            <div class="report-cost">
+              <span>Abastecimento</span>
+              <strong id="relatorioAbastecimento">R$ 0,00</strong>
+            </div>
+            <div class="report-cost">
+              <span>Multas</span>
+              <strong id="relatorioMultas">R$ 0,00</strong>
+            </div>
+            <div class="report-cost grand-total">
+              <span>Custo total registrado</span>
+              <strong id="relatorioTotal">R$ 0,00</strong>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <footer class="footer">
+        FleetControl <span>•</span> Sistema de Gestão de Frotas
+      </footer>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

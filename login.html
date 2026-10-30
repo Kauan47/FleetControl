@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b1120">
+  <title>Entrar | FleetControl</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 400px;
+      padding: 32px 28px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .login-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 26px;
+    }
+
+    .login-card h1 {
+      margin: 0 0 4px;
+      font-size: 22px;
+    }
+
+    .login-card .subtitle {
+      margin: 0 0 22px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .login-card .form-grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    .login-card .field input {
+      font-size: 16px;
+    }
+
+    .senha-wrap {
+      position: relative;
+    }
+
+    .senha-wrap input {
+      padding-right: 78px;
+    }
+
+    .senha-wrap .text-button {
+      position: absolute;
+      top: 50%;
+      right: 6px;
+      transform: translateY(-50%);
+    }
+
+    .login-erro {
+      min-height: 20px;
+      margin: 14px 0 0;
+      color: var(--red);
+      font-size: 13px;
+    }
+
+    .login-card .btn {
+      width: 100%;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <main class="login-card">
+    <div class="login-brand">
+      <div class="brand-mark">FC</div>
+      <div class="brand-copy">
+        <strong>Fleet<span>Control</span></strong>
+        <small>Gestão inteligente de frotas</small>
+      </div>
+    </div>
+
+    <h1>Entrar</h1>
+    <p class="subtitle">Informe seu login e senha para acessar o sistema.</p>
+
+    <form id="formLogin">
+      <div class="form-grid">
+        <div class="field">
+          <label for="usuario">Login</label>
+          <input id="usuario" name="usuario" autocomplete="username"
+            autocapitalize="none" spellcheck="false" required autofocus>
+        </div>
+
+        <div class="field">
+          <label for="senha">Senha</label>
+          <div class="senha-wrap">
+            <input id="senha" name="senha" type="password"
+              autocomplete="current-password" required>
+            <button class="text-button" type="button" id="verSenha">Mostrar</button>
+          </div>
+        </div>
+      </div>
+
+      <p class="login-erro" id="erroLogin" role="alert"></p>
+
+      <button class="btn btn-primary" type="submit" id="btnEntrar">Entrar</button>
+    </form>
+  </main>
+
+  <script>
+    (function () {
+      var form = document.getElementById("formLogin");
+      var erro = document.getElementById("erroLogin");
+      var botao = document.getElementById("btnEntrar");
+      var senha = document.getElementById("senha");
+      var ver = document.getElementById("verSenha");
+
+      // Se já estiver logado, vai direto para o sistema
+      fetch("/api/me").then(function (r) {
+        if (r.ok) window.location.replace("/");
+      }).catch(function () {});
+
+      ver.addEventListener("click", function () {
+        var mostrando = senha.type === "text";
+        senha.type = mostrando ? "password" : "text";
+        ver.textContent = mostrando ? "Mostrar" : "Ocultar";
+      });
+
+      form.addEventListener("submit", async function (evento) {
+        evento.preventDefault();
+        erro.textContent = "";
+        botao.disabled = true;
+        botao.textContent = "Entrando...";
+
+        try {
+          var resposta = await fetch("/api/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              usuario: document.getElementById("usuario").value,
+              senha: senha.value
+            })
+          });
+
+          var resultado = await resposta.json().catch(function () { return {}; });
+
+          if (!resposta.ok) {
+            throw new Error(resultado.erro || "Não foi possível entrar.");
+          }
+
+          window.location.replace("/");
+        } catch (e) {
+          erro.textContent = e.message;
+          senha.value = "";
+          senha.focus();
+          botao.disabled = false;
+          botao.textContent = "Entrar";
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
