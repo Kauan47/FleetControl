@@ -360,7 +360,7 @@ function renderizarVeiculos() {
         <td>${statusHTML(v.status)}</td>
         <td>
           <button class="secondary-button" type="button"
-            data-editar-veiculo="${escapar(v.id)}">Editar</button>
+            data-editar="veiculos" data-id="${escapar(v.id)}">Editar</button>
           <button class="danger-button" type="button"
             data-excluir-veiculo="${escapar(v.id)}">Excluir</button>
         </td>
@@ -398,6 +398,10 @@ function renderizarMotoristas() {
           <td>${escapar(m.telefone || "—")}</td>
           <td>${statusHTML(vencida ? "CNH vencida" : (m.status || "Ativo"))}</td>
           <td>
+            <button class="secondary-button" type="button"
+              data-editar="motoristas" data-id="${escapar(m.id)}">
+              Editar
+            </button>
             <button class="danger-button" type="button"
               data-excluir="motoristas" data-id="${escapar(m.id)}">
               Excluir
@@ -441,6 +445,218 @@ function renderizarSelects() {
     });
 }
 
+/* ---------- edição de cadastros ---------- */
+
+// Guarda o id do registro que está sendo editado em cada formulário.
+// null = formulário em modo "novo cadastro".
+const edicao = {
+  veiculos: null,
+  motoristas: null,
+  abastecimentos: null,
+  multas: null,
+  manutencoes: null
+};
+
+// Escolhe a opção do select; se o valor não existir na lista, usa o padrão.
+function selecionar(id, valor, padrao = "") {
+  const select = $(id);
+  if (!select) return;
+
+  const texto = String(valor ?? "");
+  const existe = [...select.options].some((o) => o.value === texto);
+  select.value = existe ? texto : padrao;
+}
+
+const dataCampo = (valor) => (valor ? String(valor).slice(0, 10) : "");
+
+const formsEdicao = {
+  veiculos: {
+    form: "formVeiculo",
+    campoId: "veiculoId",
+    titulo: "tituloFormVeiculo",
+    salvar: "btnSalvarVeiculo",
+    cancelar: "btnCancelarEdicaoVeiculo",
+    tituloNovo: "Novo veículo",
+    tituloEditar: "Editar veículo",
+    salvarNovo: "Salvar veículo",
+    nome: (v) => v.placa,
+    preencher(v) {
+      $("placa").value = v.placa || "";
+      $("marca").value = v.marca || "";
+      $("modelo").value = v.modelo || "";
+      $("ano").value = v.ano || "";
+      selecionar("tipoVeiculo", v.tipo, "Outro");
+      selecionar(
+        "status",
+        v.status === "Disponível" ? "Ativo" : v.status,
+        "Ativo"
+      );
+      selecionar("motorista", v.motoristaId, "");
+    }
+  },
+
+  motoristas: {
+    form: "formMotorista",
+    campoId: "motoristaId",
+    titulo: "tituloFormMotorista",
+    salvar: "btnSalvarMotorista",
+    cancelar: "btnCancelarEdicaoMotorista",
+    tituloNovo: "Novo motorista",
+    tituloEditar: "Editar motorista",
+    salvarNovo: "Salvar motorista",
+    nome: (m) => m.nome,
+    preencher(m) {
+      $("nomeMotorista").value = m.nome || "";
+      $("cpfMotorista").value = m.cpf || "";
+      $("cnhMotorista").value = m.cnh || "";
+      $("validadeCnh").value = dataCampo(m.validade);
+      $("telefoneMotorista").value = m.telefone || "";
+      selecionar("statusMotorista", m.status, "Ativo");
+    }
+  },
+
+  abastecimentos: {
+    form: "formAbastecimento",
+    campoId: "abastecimentoId",
+    titulo: "tituloFormAbastecimento",
+    salvar: "btnSalvarAbastecimento",
+    cancelar: "btnCancelarEdicaoAbastecimento",
+    tituloNovo: "Novo abastecimento",
+    tituloEditar: "Editar abastecimento",
+    salvarNovo: "Salvar abastecimento",
+    nome: (a) => `${nomeVeiculo(a.veiculoId)} em ${dataBR(a.data)}`,
+    preencher(a) {
+      const valorLitro = a.valorLitro ||
+        (a.litros > 0 ? Math.round((a.valor / a.litros) * 1000) / 1000 : "");
+
+      selecionar("veiculoAbastecimento", a.veiculoId, "");
+      $("dataAbastecimento").value = dataCampo(a.data);
+      $("litrosAbastecimento").value = a.litros || "";
+      $("valorLitro").value = valorLitro;
+      $("kmAbastecimento").value = a.km || "";
+      selecionar("combustivel", a.combustivel, "Outro");
+    }
+  },
+
+  multas: {
+    form: "formMulta",
+    campoId: "multaId",
+    titulo: "tituloFormMulta",
+    salvar: "btnSalvarMulta",
+    cancelar: "btnCancelarEdicaoMulta",
+    tituloNovo: "Registrar multa",
+    tituloEditar: "Editar multa",
+    salvarNovo: "Salvar multa",
+    nome: (m) => `${nomeVeiculo(m.veiculoId)} em ${dataBR(m.data)}`,
+    preencher(m) {
+      selecionar("veiculoMulta", m.veiculoId, "");
+      $("dataMulta").value = dataCampo(m.data);
+      $("descricaoMulta").value = m.descricao || "";
+      $("valorMulta").value = m.valor ?? "";
+      selecionar("statusMulta", m.status, "Pendente");
+      $("vencimentoMulta").value = dataCampo(m.vencimento);
+    }
+  },
+
+  manutencoes: {
+    form: "formManutencao",
+    campoId: "manutencaoId",
+    titulo: "tituloFormManutencao",
+    salvar: "btnSalvarManutencao",
+    cancelar: "btnCancelarEdicaoManutencao",
+    tituloNovo: "Registrar manutenção",
+    tituloEditar: "Editar manutenção",
+    salvarNovo: "Salvar manutenção",
+    nome: (m) => `${nomeVeiculo(m.veiculoId)} em ${dataBR(m.data)}`,
+    preencher(m) {
+      selecionar("veiculoManutencao", m.veiculoId, "");
+      $("dataManutencao").value = dataCampo(m.data);
+      selecionar("tipoManutencao", m.tipo, "Outro");
+      $("valorManutencao").value = m.valor ?? "";
+      $("descricaoManutencao").value = m.descricao || "";
+    }
+  }
+};
+
+function mostrar(id, visivel) {
+  const elemento = $(id);
+  if (!elemento) return;
+
+  elemento.hidden = !visivel;
+  elemento.style.display = visivel ? "" : "none";
+}
+
+function sairEdicao(tipo) {
+  const config = formsEdicao[tipo];
+  if (!config) return;
+
+  edicao[tipo] = null;
+  if ($(config.campoId)) $(config.campoId).value = "";
+
+  definirTexto(config.titulo, config.tituloNovo);
+  definirTexto(config.salvar, config.salvarNovo);
+  mostrar(config.cancelar, false);
+  $(config.form)?.classList.remove("editando");
+}
+
+function entrarEdicao(tipo, id) {
+  const config = formsEdicao[tipo];
+  const registro = dados[tipo]?.find((r) => String(r.id) === String(id));
+
+  if (!config || !registro) return;
+
+  config.preencher(registro);
+
+  edicao[tipo] = registro.id;
+  if ($(config.campoId)) $(config.campoId).value = registro.id;
+
+  definirTexto(config.titulo, `${config.tituloEditar}: ${config.nome(registro)}`);
+  definirTexto(config.salvar, "Salvar alterações");
+  mostrar(config.cancelar, true);
+  $(config.form)?.classList.add("editando");
+
+  $(config.form).scrollIntoView({ behavior: "smooth", block: "center" });
+
+  notificar(
+    "Modo de edição: altere os campos e clique em \"Salvar alterações\"."
+  );
+}
+
+// Se o registro em edição for excluído, o formulário volta ao normal.
+function encerrarEdicaoSeExcluido(tipo, id) {
+  if (edicao[tipo] !== null && String(edicao[tipo]) === String(id)) {
+    $(formsEdicao[tipo].form)?.reset();
+  }
+}
+
+function configurarEdicao() {
+  Object.entries(formsEdicao).forEach(([tipo, config]) => {
+    const form = $(config.form);
+    if (!form) return;
+
+    // "Limpar", "Cancelar edição" e o reset após salvar
+    // sempre voltam o formulário para "novo cadastro".
+    form.addEventListener("reset", () => {
+      sairEdicao(tipo);
+      setTimeout(preencherDatas, 0);
+    });
+
+    $(config.cancelar)?.addEventListener("click", () => {
+      form.reset();
+      notificar("Edição cancelada.");
+    });
+
+    sairEdicao(tipo);
+  });
+
+  document.addEventListener("click", (evento) => {
+    const botao = evento.target.closest("[data-editar]");
+    if (!botao) return;
+
+    entrarEdicao(botao.dataset.editar, botao.dataset.id);
+  });
+}
+
 /* ---------- manutenções ---------- */
 
 function renderizarManutencoes() {
@@ -463,6 +679,10 @@ function renderizarManutencoes() {
         <td>${escapar(m.descricao || "—")}</td>
         <td>${moeda(m.valor)}</td>
         <td>
+          <button class="secondary-button" type="button"
+            data-editar="manutencoes" data-id="${escapar(m.id)}">
+            Editar
+          </button>
           <button class="danger-button" type="button"
             data-excluir="manutencoes" data-id="${escapar(m.id)}">
             Excluir
@@ -506,6 +726,10 @@ function renderizarAbastecimentos() {
           <td>${a.km ? `${escapar(a.km)} km` : "—"}</td>
           <td>${escapar(a.combustivel || "—")}</td>
           <td>
+            <button class="secondary-button" type="button"
+              data-editar="abastecimentos" data-id="${escapar(a.id)}">
+              Editar
+            </button>
             <button class="danger-button" type="button"
               data-excluir="abastecimentos" data-id="${escapar(a.id)}">
               Excluir
@@ -543,6 +767,10 @@ function renderizarMultas() {
         <td>${statusHTML(m.status || "Pendente")}</td>
         <td>${dataBR(m.vencimento)}</td>
         <td>
+          <button class="secondary-button" type="button"
+            data-editar="multas" data-id="${escapar(m.id)}">
+            Editar
+          </button>
           <button class="danger-button" type="button"
             data-excluir="multas" data-id="${escapar(m.id)}">
             Excluir
@@ -603,16 +831,23 @@ function renderizarTudo() {
 /* ---------- cadastros ---------- */
 
 async function enviarCadastro(tipo, payload, form) {
+  const id = edicao[tipo] ?? null;
+
   try {
-    await requisicaoAPI(`/${tipo}`, {
-      method: "POST",
-      body: JSON.stringify(payload)
-    });
+    await requisicaoAPI(
+      id ? `/${tipo}/${encodeURIComponent(id)}` : `/${tipo}`,
+      {
+        method: id ? "PUT" : "POST",
+        body: JSON.stringify(payload)
+      }
+    );
 
     form.reset();
     preencherDatas();
     await carregarDados();
-    notificar("Cadastro realizado com sucesso!");
+    notificar(
+      id ? "Alterações salvas com sucesso!" : "Cadastro realizado com sucesso!"
+    );
   } catch (erro) {
     console.error(`Erro ao cadastrar ${tipo}:`, erro);
     notificar(`Não foi possível salvar: ${erro.message}`);
@@ -676,7 +911,8 @@ function configurarFormularios() {
       valor_litro: valorLitro,
       km: Number($("kmAbastecimento").value || 0),
       combustivel: $("combustivel").value,
-      posto: ""
+      // Ao editar, não envia "posto" para não apagar o valor salvo.
+      ...(edicao.abastecimentos ? {} : { posto: "" })
     }, evento.currentTarget);
   });
 
@@ -718,6 +954,7 @@ async function excluirRegistro(tipo, id) {
       method: "DELETE"
     });
 
+    encerrarEdicaoSeExcluido(tipo, id);
     await carregarDados();
     notificar("Registro excluído com sucesso!");
   } catch (erro) {
@@ -749,6 +986,7 @@ async function excluirVeiculo(id) {
       method: "DELETE"
     });
 
+    encerrarEdicaoSeExcluido("veiculos", id);
     await carregarDados();
     notificar("Veículo excluído com sucesso!");
   } catch (erro) {
@@ -759,36 +997,9 @@ async function excluirVeiculo(id) {
 function configurarAcoesTabelas() {
   $("tabelaVeiculos").addEventListener("click", async (evento) => {
     const excluir = evento.target.closest("[data-excluir-veiculo]");
-    const editar = evento.target.closest("[data-editar-veiculo]");
 
     if (excluir) {
       await excluirVeiculo(excluir.dataset.excluirVeiculo);
-      return;
-    }
-
-    if (editar) {
-      const veiculo = dados.veiculos.find(
-        (v) => String(v.id) === String(editar.dataset.editarVeiculo)
-      );
-
-      if (!veiculo) return;
-
-      $("placa").value = veiculo.placa || "";
-      $("marca").value = veiculo.marca || "";
-      $("modelo").value = veiculo.modelo || "";
-      $("ano").value = veiculo.ano || "";
-      $("tipoVeiculo").value = veiculo.tipo || "";
-      $("status").value = veiculo.status === "Disponível"
-        ? "Ativo"
-        : (veiculo.status || "Ativo");
-      $("motorista").value = veiculo.motoristaId ?? "";
-
-      $("formVeiculo").scrollIntoView({ behavior: "smooth", block: "center" });
-
-      notificar(
-        "Os dados foram preenchidos para consulta. " +
-        "A edição ainda depende de uma rota de atualização compatível."
-      );
     }
   });
 
@@ -865,6 +1076,7 @@ async function iniciarFleetControl() {
   configurarNavegacao();
   configurarFormularios();
   configurarAcoesTabelas();
+  configurarEdicao();
   configurarPesquisas();
   preencherDatas();
 
