@@ -341,7 +341,7 @@
         <section class="panel">
           <div class="panel-heading">
             <div>
-              <h3>Novo motorista</h3>
+              <h3 id="tituloFormMotorista">Novo motorista</h3>
               <p>Preencha os dados do motorista.</p>
             </div>
           </div>
@@ -377,8 +377,11 @@
               </div>
             </div>
             <div class="form-actions">
-              <button class="btn btn-primary" type="submit">Salvar motorista</button>
+              <button class="btn btn-primary" type="submit" id="btnSalvarMotorista">Salvar motorista</button>
               <button class="btn btn-secondary" type="reset">Limpar</button>
+              <button class="btn btn-secondary" type="button" id="btnCancelarEdicaoMotorista" hidden>
+                Cancelar edição
+              </button>
             </div>
           </form>
         </section>
@@ -425,7 +428,7 @@
         <section class="panel">
           <div class="panel-heading">
             <div>
-              <h3>Novo abastecimento</h3>
+              <h3 id="tituloFormAbastecimento">Novo abastecimento</h3>
               <p>Informe os dados do abastecimento.</p>
             </div>
           </div>
@@ -466,8 +469,11 @@
               </div>
             </div>
             <div class="form-actions">
-              <button class="btn btn-primary" type="submit">Salvar abastecimento</button>
+              <button class="btn btn-primary" type="submit" id="btnSalvarAbastecimento">Salvar abastecimento</button>
               <button class="btn btn-secondary" type="reset">Limpar</button>
+              <button class="btn btn-secondary" type="button" id="btnCancelarEdicaoAbastecimento" hidden>
+                Cancelar edição
+              </button>
             </div>
           </form>
         </section>
@@ -515,7 +521,7 @@
         <section class="panel">
           <div class="panel-heading">
             <div>
-              <h3>Registrar multa</h3>
+              <h3 id="tituloFormMulta">Registrar multa</h3>
               <p>Preencha as informações da infração.</p>
             </div>
           </div>
@@ -553,8 +559,11 @@
               </div>
             </div>
             <div class="form-actions">
-              <button class="btn btn-primary" type="submit">Salvar multa</button>
+              <button class="btn btn-primary" type="submit" id="btnSalvarMulta">Salvar multa</button>
               <button class="btn btn-secondary" type="reset">Limpar</button>
+              <button class="btn btn-secondary" type="button" id="btnCancelarEdicaoMulta" hidden>
+                Cancelar edição
+              </button>
             </div>
           </form>
         </section>
@@ -601,7 +610,7 @@
         <section class="panel">
           <div class="panel-heading">
             <div>
-              <h3>Registrar manutenção</h3>
+              <h3 id="tituloFormManutencao">Registrar manutenção</h3>
               <p>Informe os dados do serviço realizado.</p>
             </div>
           </div>
@@ -638,8 +647,11 @@
               </div>
             </div>
             <div class="form-actions">
-              <button class="btn btn-primary" type="submit">Salvar manutenção</button>
+              <button class="btn btn-primary" type="submit" id="btnSalvarManutencao">Salvar manutenção</button>
               <button class="btn btn-secondary" type="reset">Limpar</button>
+              <button class="btn btn-secondary" type="button" id="btnCancelarEdicaoManutencao" hidden>
+                Cancelar edição
+              </button>
             </div>
           </form>
         </section>
