@@ -164,7 +164,7 @@ app.get("/index.html", paginaProtegida, (req, res) => {
   res.sendFile(path.join(pastaProjeto, "index.html"));
 });
 
-["login.html", "style.css", "script.js"].forEach((nome) => {
+["login.html", "style.css", "script.js", "favicon.png.png"].forEach((nome) => {
   app.get(`/${nome}`, (req, res) => {
     res.sendFile(path.join(pastaProjeto, nome));
   });
